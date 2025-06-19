@@ -55,49 +55,63 @@ export default async function Home() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-8 sm:p-24">
+    <main className="flex min-h-screen flex-col items-center p-8 sm:p-24 bg-amber-50 text-stone-800">
       <div className="w-full max-w-2xl">
         <h1 className="text-3xl font-bold mb-8 text-center">最新の投稿 (GraphQL版)</h1>
         {posts.length > 0 ? (
-          <ul className="space-y-6">
+           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"> {/* (D) グリッドレイアウトに変更 */}
             {posts.map((post) => {
               const imageUrl = post.featuredImage?.node?.sourceUrl; // オプショナルチェイニングで安全にアクセス
               const imageAlt = post.featuredImage?.node?.altText || post.title; // 代替テキスト
 
               return (
-                <li key={post.id} className="p-4 border rounded-lg shadow-sm overflow-hidden">
+                 <li key={post.id} className="bg-gray-800 rounded-lg shadow-lg overflow-hidden group flex flex-col"> {/* (E) カード全体のスタイル変更 */}
                   {imageUrl && (
-                    <div className="relative w-full h-48 mb-4">
+                    <div className="relative w-full aspect-[16/10] mb-0"> {/* (F) 画像コンテナ、アスペクト比固定、下マージン削除 */}
                       <Image
                         src={imageUrl}
                         alt={imageAlt}
                         fill
                         style={{ objectFit: 'cover' }}
-                        priority={posts.indexOf(post) < 2}
+          className="group-hover:scale-105 transition-transform duration-300 ease-in-out" // (L) ホバーエフェクト追加
+                        priority={posts.indexOf(post) < 3}
                       />
                     </div>
                   )}
-                  <h2 className="text-xl font-semibold mb-2">
+                  <div className="p-6 flex flex-col flex-grow"> {/* (M) テキストエリアのパディングとレイアウト */}
+                  <h2 className="text-lg font-semibold mb-1 text-gray-100 group-hover:text-sky-400 transition-colors"> {/* (G) タイトルのスタイル変更 */}
                     <a
-                      href={post.link}
-                      target="_blank"
+                        href={post.link} // 将来的には個別の投稿ページへのリンクに変更
+                      target="_blank" // 今はWordPressの元記事へ
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 hover:underline"
+                      
                     >
                       <span dangerouslySetInnerHTML={{ __html: post.title }} />
                     </a>
                   </h2>
-                  <p className="text-sm text-gray-500 mb-2">
-                    投稿日: {new Date(post.date).toLocaleDateString('ja-JP')}
+                  <p className="text-xs text-gray-400 mb-3"> {/* (I) 投稿日のスタイル変更 */}
+                    
+        {new Date(post.date).toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.')}
                   </p>
+                  {/* 抜粋は参考サイトにはないので一旦コメントアウト (必要なら後で追加)
                   {post.excerpt && (
                     <div
-                      className="text-gray-700 prose prose-sm max-w-none"
-                      dangerouslySetInnerHTML={{ __html: post.excerpt }}
+                      className="text-gray-300 text-sm leading-relaxed prose prose-sm max-w-none mt-auto"
+          dangerouslySetInnerHTML={{ __html: post.excerpt }}
                     />
                   )}
-                </li>
-              );
+                 */}
+                 <a
+        href={post.link} // 将来的には個別の投稿ページへのリンク
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-auto self-start inline-block bg-sky-500 text-white text-xs font-bold py-2 px-4 rounded-md hover:bg-sky-600 transition-colors" // (N) READボタン風のリンク
+      >
+        READ
+      </a>
+      </div>
+  </li>
+);
             })}
           </ul>
         ) : (
