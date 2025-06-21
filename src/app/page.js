@@ -10,6 +10,7 @@ const GET_POSTS_QUERY = `
         title
         date
         link
+        slug
         excerpt
         featuredImage { # アイキャッチ画像の情報
           node {
