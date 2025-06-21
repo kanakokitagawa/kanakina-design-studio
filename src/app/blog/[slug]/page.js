@@ -1,6 +1,7 @@
 // src/app/blog/[slug]/page.js
-import Image from 'next/image'; // Imageコンポーネントをインポート
-import Link from 'next/link'; // これを追加
+import Image from 'next/image';
+import Link from 'next/link'; // トップページへ戻るリンクなどのために念のためインポート
+
 // WordPressのGraphQLエンドポイント
 const WORDPRESS_GRAPHQL_ENDPOINT = process.env.WORDPRESS_GRAPHQL_ENDPOINT || 'https://kanakina.com/graphql';
 
@@ -10,25 +11,25 @@ const GET_SINGLE_POST_QUERY = `
     post(id: $id, idType: $idType) {
       title
       date
-      content # 投稿の本文 (HTML形式で返ってくる想定)
+      content
       featuredImage {
         node {
           sourceUrl(size: LARGE)
           altText
         }
       }
-      author { # 著者情報を追加 (任意)
+      author {
         node {
           name
         }
       }
-      categories { # カテゴリー情報を追加 (任意)
+      categories {
         nodes {
           name
           slug
         }
       }
-      tags { # タグ情報を追加 (任意)
+      tags {
         nodes {
           name
           slug
@@ -58,49 +59,58 @@ async function getSinglePost(slug) {
 
     if (!response.ok) {
       const errorBody = await response.text();
-      console.error(`Failed to fetch post. Status: ${response.status}, Body: ${errorBody}`);
+      console.error(`[getSinglePost] Failed to fetch post. Status: ${response.status}, Body: ${errorBody}`);
       throw new Error(`Failed to fetch post: ${response.statusText}`);
     }
 
     const json = await response.json();
 
     if (json.errors) {
-      console.error('GraphQL Errors:', json.errors);
+      console.error('[getSinglePost] GraphQL Errors:', json.errors);
       throw new Error('Failed to fetch post due to GraphQL errors');
     }
 
     if (!json.data.post) {
-      console.warn(`Post with slug "${slug}" not found.`);
+      console.warn(`[getSinglePost] Post with slug "${slug}" not found.`);
       return null;
     }
 
     return json.data.post;
   } catch (error) {
-    console.error('Error in getSinglePost:', error);
-    throw error;
+    console.error('[getSinglePost] Error fetching post:', error);
+    // エラーページで詳細を表示したい場合は、ここでエラーオブジェクトを再スローする
+    // throw error;
+    // あるいは、nullを返してコンポーネント側でnotFound()を呼ぶ
+    return null;
   }
 }
 
-// ここから下がReactコンポーネント部分 (これがページの本体です)
-export default async function Home() {
-  let posts = [];
+// 個別投稿ページのReactコンポーネント
+export default async function SinglePostPage({ params }) {
+  const { slug } = params; // URLからslugを取得
+  let post;
+
   try {
-    posts = await getPosts();
+    post = await getSinglePost(slug);
   } catch (error) {
-    console.error("Error in Home component when fetching posts:", error);
-    // ここでエラーページを表示するなどの処理も可能
+    // getSinglePost内でエラーがスローされた場合、ここでキャッチしてエラーページ等を表示できる
+    // ただし、getSinglePostがnullを返す設計なら、ここではエラーにならない
+    console.error(`[SinglePostPage] Error fetching post for slug: ${slug}`, error);
+    // 必要であれば、ここでカスタムエラーページにリダイレクトしたり、エラーメッセージを表示したりする
+    // 今回はgetSinglePostがnullを返すので、次のif (!post) で処理される
   }
 
-  // 投稿が見つからない場合は、404ページを表示する (より適切な方法)
-  if (!posts || posts.length === 0) {
-   return (
-      <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-light-amber text-dark-stone">
-        <p>投稿がありません。</p>
-      </main>
-    );
+  // 投稿が見つからない場合は、404ページを表示
+  if (!post) {
+    const { notFound } = await import('next/navigation');
+    notFound();
+    // notFound()を呼んだ後は何もreturnしない（またはnullをreturn）
+    return null;
   }
-  console.log('Fetched post content:', post.content);
-  // 日付のフォーマット (例: 2025年06月20日)
+
+  // console.log('[SinglePostPage] Fetched post content:', post.content); // デバッグ用
+
+  // 日付のフォーマット
   const formattedDate = new Date(post.date).toLocaleDateString('ja-JP', {
     year: 'numeric',
     month: 'long',
@@ -108,51 +118,70 @@ export default async function Home() {
   });
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-light-amber text-dark-stone">
-        <p>投稿がありません。</p>
-      </main>
-    );
-  }
+    <article className="container mx-auto px-4 py-8 max-w-3xl">
+      {/* アイキャッチ画像 */}
+      {post.featuredImage?.node?.sourceUrl && (
+        <div className="mb-8 relative w-full h-96">
+          <Image
+            src={post.featuredImage.node.sourceUrl}
+            alt={post.featuredImage.node.altText || post.title}
+            fill
+            style={{ objectFit: 'cover' }}
+            priority
+          />
+        </div>
+      )}
 
-  return (
-    <main className="flex min-h-screen flex-col items-center p-8 sm:p-24 bg-light-amber text-dark-stone">
-      <h1 className="text-5xl font-bold mb-12">最新の投稿 (GraphQL版)</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
-        {posts.map((post) => (
-          <Link key={post.id} href={`/blog/${post.slug}`} legacyBehavior={false}> {/* ← Linkコンポーネントで囲む */}
-            <a className="block bg-slate-800 rounded-lg shadow-lg overflow-hidden group transform transition-all duration-300 hover:scale-105"> {/* カード全体のスタイル */}
-              {post.featuredImage?.node?.sourceUrl && (
-                <div className="relative w-full aspect-[16/9]"> {/* 画像のアスペクト比 */}
-                  <Image
-                    src={post.featuredImage.node.sourceUrl}
-                    alt={post.featuredImage.node.altText || post.title}
-                    fill
-                    style={{ objectFit: 'cover' }}
-                    className="group-hover:opacity-90 transition-opacity duration-300"
-                  />
-                </div>
-              )}
-              <div className="p-6">
-                <h2 className="text-2xl font-semibold mb-3 text-slate-100 group-hover:text-amber-400 transition-colors duration-300">
-                  {post.title}
-                </h2>
-                <p className="text-sm text-slate-400 mb-2">
-                  {new Date(post.date).toLocaleDateString('ja-JP', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </p>
-                {/* READボタンのデザインを調整 */}
-                <div className="mt-4 text-right">
-                  <span className="inline-block bg-amber-500 text-slate-900 text-sm font-semibold px-4 py-2 rounded-md group-hover:bg-amber-400 transition-colors duration-300">
-                    READ
-                  </span>
-                </div>
-              </div>
-            </a>
-          </Link>
-        ))}
+      {/* タイトル */}
+      <h1 className="text-4xl font-bold mb-4 text-gray-800 dark:text-gray-100">{post.title}</h1>
+
+      {/* 投稿日と著者 */}
+      <div className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+        <span>{formattedDate}</span>
+        {post.author?.node?.name && <span> by {post.author.node.name}</span>}
       </div>
-    </main>
+
+      {/* 本文 */}
+      <div
+        className="prose prose-lg dark:prose-invert max-w-none"
+        dangerouslySetInnerHTML={{ __html: post.content || '' }} // post.contentがnullの場合を考慮
+      />
+
+      {/* カテゴリーとタグ */}
+      <div className="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+        {post.categories?.nodes?.length > 0 && (
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold mb-2">Categories:</h3>
+            {post.categories.nodes.map((category) => (
+              <span key={category.slug} className="inline-block bg-gray-200 dark:bg-gray-700 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 dark:text-gray-200 mr-2 mb-2">
+                {category.name}
+              </span>
+            ))}
+          </div>
+        )}
+        {post.tags?.nodes?.length > 0 && (
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Tags:</h3>
+            {post.tags.nodes.map((tag) => (
+              <span key={tag.slug} className="inline-block bg-gray-200 dark:bg-gray-700 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 dark:text-gray-200 mr-2 mb-2">
+                {tag.name}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-12 text-center">
+        <Link href="/" className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+          ← トップページへ戻る
+        </Link>
+      </div>
+    </article>
   );
+}
+
+// (任意) 静的パスの生成 (ビルド時に各投稿ページを事前生成する場合)
+// export async function generateStaticParams() {
+//   // ... (省略) ...
+//   return [];
+// }
