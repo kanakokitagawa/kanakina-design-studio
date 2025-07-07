@@ -2,3 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
+/* アニメーション用のカスタムCSS */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-down {
+  animation: fadeInDown 1s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 1s ease-out forwards;
+}
+
+.animate-fade-in-up-delay {
+  animation: fadeInUp 1s ease-out 0.5s forwards; /* 0.5秒遅れて開始 */
+  opacity: 0; /* 初期状態は非表示 */
+}
+/* src/app/globals.css */
+body {
+  cursor: none; /* これで矢印カーソルが消えます */
+}

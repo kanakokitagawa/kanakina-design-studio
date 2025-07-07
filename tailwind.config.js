@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+const { fontFamily } = require('tailwindcss/defaultTheme'); // ← この行を追加
 module.exports = {
   content: [
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
@@ -7,12 +8,10 @@ module.exports = {
   ],
   theme: {
     extend: {
-      // ここに以前設定したカスタムカラーなどを追加できます
-      // 例:
-     colors: {
-     'light-amber': '#FEF3C7', 
-      'dark-stone': '#44403C', 
+      fontFamily: {
+        sans: ['var(--font-m-plus-rounded-1c)', 'sans-serif'],
       },
+      // ...
     },
   },
   plugins: [
