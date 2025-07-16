@@ -10,9 +10,9 @@ function PageContent({ html }) {
   );
 }
 
-export default async function AboutUsPage() {
+export default async function AboutPage() {
   // WordPressで設定した「About Us」ページの**スラッグ**をここに指定
-  const pageData = await getPageBySlug('about');
+  const pageData = await getPageBySlug('about-us');
 
   if (!pageData) {
     return <div>Page not found.</div>;

@@ -9,6 +9,14 @@ const nextConfig = {
         port: '',
         pathname: '/wp-content/uploads/**',
       },
+    // ★★ここからが、追記する部分です★★
+      {
+        protocol: 'https',
+        hostname: 'cms.kanakina.com', // 新しい取引先（厨房）のアドレス
+        port: '',
+        pathname: '/wp-content/uploads/**',
+      },
+      // ★★ここまでが、追記する部分です★★  
     ],
   },
 };
