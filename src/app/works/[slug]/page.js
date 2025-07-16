@@ -13,13 +13,15 @@ function formatDate(dateString) {
 
 export default async function WorkDetailPage({ params }) {
   const { slug } = params;
-  const work = await getWorkBySlug(slug);
+  //const work = await getWorkBySlug(slug);
 
   // データが見つからなかった場合は404ページを表示
   if (!work) {
     notFound();
   }
-
+ // この行を、returnの、直前に、追加します
+const work = { title: '仮のタイトル', content: '<p>仮の本文です</p>', featuredImage: null, date: '2025-07-16' }; 
+const post = work; // post と work を、同じ、仮のデータにします
   return (
     <div className="container mx-auto px-4 py-16 md:py-24">
       <article>

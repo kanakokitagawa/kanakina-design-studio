@@ -3,7 +3,7 @@ import { getPostBySlug } from '@/lib/wordpress';
 
 export default async function BlogPostPage({ params }) {
   const { slug } = params;
-  const post = await getPostBySlug(slug);
+  //const post = await getPostBySlug(slug);
 
   if (!post) {
     return <div>Post not found.</div>;
@@ -15,7 +15,9 @@ export default async function BlogPostPage({ params }) {
     month: '2-digit',
     day: '2-digit',
   }).replace(/\//g, '.');
-
+  // この行を、returnの、直前に、追加します
+const work = { title: '仮のタイトル', content: '<p>仮の本文です</p>', featuredImage: null, date: '2025-07-16' }; 
+const post = work; // post と work を、同じ、仮のデータにします
   return (
     <article className="container mx-auto px-4 py-16 md:py-24">
       <h1 className="text-3xl md:text-5xl font-bold mb-4 text-center">{post.title}</h1>
