@@ -127,7 +127,7 @@ export async function getPageBySlug(slug) {
     const data = await fetchAPI(
     `
     query GetPageBySlug($id: ID!) {
-      page(id: $id, idType: URI) {
+      page(id: $id, idType: SLUG) {
         id
         title
         content
