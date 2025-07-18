@@ -1,43 +1,41 @@
+import { getAllPostSlugs, getPostData } from '@/lib/posts';
 import Image from 'next/image';
-import { getPostBySlug } from '@/lib/wordpress';
 
-export default async function BlogPostPage({ params }) {
-  const { slug } = params;
-  //const post = await getPostBySlug(slug);
+// このページが、どのURL（どのブログ記事）で生成されるべきかをNext.jsに教えます
+export async function generateStaticParams() {
+  const paths = getAllPostSlugs();
+  return paths;
+}
 
-  if (!post) {
-    return <div>Post not found.</div>;
-  }
+// 各ページを生成するためのメインの関数です
+export default async function BlogPost({ params }) {
+  // URLのslugを元に、ブログ記事の全データを取得します
+  const postData = await getPostData(params.slug);
 
-  // 日付をフォーマット（例: 2025-06-19 -> 2025.06.19）
-  const formattedDate = new Date(post.date).toLocaleDateString('ja-JP', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).replace(/\//g, '.');
-  // この行を、returnの、直前に、追加します
-const work = { title: '仮のタイトル', content: '<p>仮の本文です</p>', featuredImage: null, date: '2025-07-16' }; 
-const post = work; // post と work を、同じ、仮のデータにします
   return (
     <article className="container mx-auto px-4 py-16 md:py-24">
-      <h1 className="text-3xl md:text-5xl font-bold mb-4 text-center">{post.title}</h1>
-      <p className="text-center text-neutral-400 mb-8">{formattedDate}</p>
+      <h1 className="text-4xl font-bold mb-4 text-center text-white">
+        {postData.title}
+      </h1>
+      <div className="text-lg text-gray-400 mb-8 text-center">
+        {postData.date}
+      </div>
 
-      {post.featuredImage && (
-        <div className="relative w-full h-60 md:h-96 mb-8 rounded-lg overflow-hidden">
+      {postData.image && (
+        <div className="relative w-full h-96 mb-12">
           <Image
-            src={post.featuredImage.node.sourceUrl}
-            alt={post.featuredImage.node.altText || post.title}
+            src={postData.image}
+            alt={postData.title}
             fill
-            style={{ objectFit: 'cover' }}
-            priority
+            className="object-cover rounded-lg"
           />
         </div>
       )}
 
+      {/* 本文をHTMLとして表示します */}
       <div
-        className="prose prose-invert lg:prose-xl max-w-4xl mx-auto"
-        dangerouslySetInnerHTML={{ __html: post.content }}
+        className="prose prose-invert lg:prose-xl mx-auto text-white"
+        dangerouslySetInnerHTML={{ __html: postData.contentHtml }}
       />
     </article>
   );

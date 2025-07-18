@@ -1,54 +1,42 @@
+import { getAllPortfolioSlugs, getPortfolioData } from '@/lib/posts';
 import Image from 'next/image';
-import { getWorkBySlug } from '@/lib/wordpress';
-import { notFound } from 'next/navigation';
 
-// 日付を「YYYY.MM.DD」形式に変換する関数
-function formatDate(dateString) {
-  const date = new Date(dateString);
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  return `${year}.${month}.${day}`;
+// このページが、どのURL（どの実績）で生成されるべきかをNext.jsに教えます
+export async function generateStaticParams() {
+  const paths = getAllPortfolioSlugs();
+  return paths;
 }
 
-export default async function WorkDetailPage({ params }) {
-  const { slug } = params;
-  //const work = await getWorkBySlug(slug);
+// 各ページを生成するためのメインの関数です
+export default async function PortfolioPost({ params }) {
+  // URLのslugを元に、実績の全データを取得します
+  const portfolioData = await getPortfolioData(params.slug);
 
-  // データが見つからなかった場合は404ページを表示
-  if (!work) {
-    notFound();
-  }
- // この行を、returnの、直前に、追加します
-const work = { title: '仮のタイトル', content: '<p>仮の本文です</p>', featuredImage: null, date: '2025-07-16' }; 
-const post = work; // post と work を、同じ、仮のデータにします
   return (
-    <div className="container mx-auto px-4 py-16 md:py-24">
-      <article>
-        <h1 className="text-3xl md:text-5xl font-bold mb-4 text-center">{work.title}</h1>
-        <p className="text-center text-gray-400 mb-8">{formatDate(work.date)}</p>
+    <article className="container mx-auto px-4 py-16 md:py-24">
+      <h1 className="text-4xl font-bold mb-4 text-center text-white">
+        {portfolioData.title}
+      </h1>
+      <div className="text-lg text-gray-400 mb-8 text-center">
+        {portfolioData.date}
+      </div>
 
-        {work.featuredImage && (
-          <div className="relative w-full aspect-video mb-12 rounded-lg overflow-hidden">
-            <Image
-              src={work.featuredImage.node.sourceUrl}
-              alt={work.featuredImage.node.altText || '実績のアイキャッチ画像'}
-              fill
-              style={{ objectFit: 'cover' }}
-              priority // LCPになる可能性が高いので優先的に読み込む
-            />
-          </div>
-        )}
+      {portfolioData.image && (
+        <div className="relative w-full h-96 mb-12">
+          <Image
+            src={portfolioData.image}
+            alt={portfolioData.title}
+            fill
+            className="object-cover rounded-lg"
+          />
+        </div>
+      )}
 
-        {/* 
-          本文を表示するエリア 
-          Tailwind Typographyプラグインを使うと、ここの表示が綺麗になります
-        */}
-        <div 
-          className="prose prose-invert prose-lg max-w-4xl mx-auto"
-          dangerouslySetInnerHTML={{ __html: work.content }}
-        />
-      </article>
-    </div>
+      {/* 本文をHTMLとして表示します */}
+      <div
+        className="prose prose-invert lg:prose-xl mx-auto text-white"
+        dangerouslySetInnerHTML={{ __html: portfolioData.contentHtml }}
+      />
+    </article>
   );
 }
