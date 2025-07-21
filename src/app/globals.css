@@ -41,3 +41,13 @@
 body {
   cursor: none; /* これで矢印カーソルが消えます */
 }
+/* === Youtube動画を美しく表示するための追加スタイル === */
+
+/* .prose クラスの中にある iframe (Youtube動画) を特別扱いする */
+iframe {
+    width: 100% !important;
+    aspect-ratio: 16 / 9 !important; /* 16:9の美しい比率を保つ */
+    border-radius: 0.5rem !important; /* 角を少し丸くする */
+    margin-top: 2em !important;
+    margin-bottom: 2em !important;
+}

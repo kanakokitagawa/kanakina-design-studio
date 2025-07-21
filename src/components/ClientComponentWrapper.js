@@ -1,17 +1,23 @@
-"use client";
+'use client'; // このコンポーネントが、ブラウザの世界だけで動くことを宣言する、最強の呪文
 
-import dynamic from 'next/dynamic';
+import { useEffect, useState } from 'react';
+import SparkleCursor from './SparkleCursor'; // 我々の魔法使い
 
-// SparkleCursorをクライアントサイドのみで読み込む
-const SparkleCursor = dynamic(
-  () => import('@/components/SparkleCursor'), // ← ここのパスを修正しました！
-  { ssr: false }
-);
+const ClientComponentWrapper = ({ children }) => {
+  const [isClient, setIsClient] = useState(false);
 
-export default function ClientComponentWrapper() {
+  // このコンポーネントが、ブラウザの世界に完全に降り立った後で、初めて実行される
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   return (
     <>
-      <SparkleCursor />
+      {/* isClientがtrueになるまで（＝ブラウザの世界になるまで）、魔法使いの召喚を待つ */}
+      {isClient && <SparkleCursor />}
+      {children}
     </>
   );
-}
+};
+
+export default ClientComponentWrapper;

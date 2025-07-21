@@ -1,28 +1,25 @@
 import Link from 'next/link';
 
-// トップページ用のメタデータ
-export const metadata = {
-  title: 'Kanakina design Studio | Official Site',
-  description: 'デザインとブランディングのスタジオ、Kanakinaの公式サイトです。',
-};
-
-export default function LandingPage() {
+export default function HomePage() {
   return (
-    // 画面全体を使い、中央にコンテンツを配置するスタイル
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
-      <main className="text-center">
-        <h1 className="text-5xl md:text-7xl font-bold tracking-wider animate-fade-in-down">
+    // ★ 背景色を `bg-olive-drab` に設定
+    <main className="flex flex-col items-center justify-center min-h-screen text-center px-4 bg-olive-drab">
+      <div className="space-y-4">
+        {/* ★ 文字色を、白(`text-white`)に設定 */}
+        <h1 className="text-5xl md:text-7xl font-bold text-white tracking-tight">
           Kanakina design Studio
         </h1>
-        <p className="mt-4 text-lg text-gray-400 animate-fade-in-up">
+        <p className="text-xl md:text-2xl text-gray-300">
           Design & Branding
         </p>
-        <div className="mt-12 animate-fade-in-up-delay">
-          <Link href="/blog" className="bg-cyan-600 text-white font-bold py-3 px-8 rounded-full hover:bg-cyan-700 transition-all text-lg">
-            Enter Works
-          </Link>
-        </div>
-      </main>
-    </div>
+      </div>
+      <Link 
+        href="/branding" 
+         // ★ 未知の色指定を、我々が名付けた、聖なる色へと、変更します
+        className="mt-12 px-8 py-4 bg-kanakina-blue text-white font-semibold rounded-full shadow-lg hover:bg-sky-600 transition-colors duration-300 text-lg"
+      >
+        Our Services
+      </Link>
+    </main>
   );
 }

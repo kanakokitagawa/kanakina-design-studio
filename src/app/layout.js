@@ -1,33 +1,32 @@
-import { M_PLUS_Rounded_1c } from 'next/font/google';
-import './globals.css';
+import { M_PLUS_Rounded_1c } from "next/font/google";
+import "./globals.css";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import ClientComponentWrapper from "@/components/ClientComponentWrapper";
 
-// --- ↓↓↓ ここのパスを全て修正しました！ ↓↓↓ ---
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import ClientComponentWrapper from '@/components/ClientComponentWrapper';
-
-// フォントの設定
 const mPlusRounded1c = M_PLUS_Rounded_1c({
-  subsets: ['latin'],
-  weight: ['400', '700'],
+  subsets: ["latin"],
+  weight: ["400", "700"],
   variable: '--font-m-plus-rounded-1c',
-  display: 'swap',
 });
 
 export const metadata = {
-  title: 'kanakina.com - Headless WordPress Blog',
-  description: 'A headless WordPress blog built with Next.js and Vercel.',
+  title: "Kanakina Design Studio",
+  description: "Design & Branding",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="ja" className={mPlusRounded1c.variable}>
-      <head />
-      <body className="bg-neutral-950 text-neutral-100 flex flex-col min-h-screen">
-        <ClientComponentWrapper />
-        <Header />
-        <main className="flex-grow">{children}</main>
-        <Footer />
+      {/* ★ ここが、変更点です！
+          ・背景色(bg-...)を、一旦、削除します。（各ページで設定するため）
+          ・基本の文字色を、我々の新しい絵の具 `text-smoky-black` に設定します。 */}
+      <body className="text-smoky-black flex flex-col min-h-screen">
+        <ClientComponentWrapper>
+          <Header />
+          <main className="flex-grow">{children}</main>
+          <Footer />
+        </ClientComponentWrapper>
       </body>
     </html>
   );

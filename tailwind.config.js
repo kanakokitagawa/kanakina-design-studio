@@ -1,20 +1,22 @@
 /** @type {import('tailwindcss').Config} */
-const { fontFamily } = require('tailwindcss/defaultTheme'); // ← この行を追加
 module.exports = {
   content: [
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    './src/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
-      fontFamily: {
-        sans: ['var(--font-m-plus-rounded-1c)', 'sans-serif'],
+      // ★ ここが、我々の、新しい、魔法の絵の具パレットです！
+      colors: {
+        'smoky-black': '#11120D',
+        'olive-drab': '#565449',
+        'bone': '#D8CFBC',
+        'floral-white': '#FFFBF4',
+        'kanakina-blue': '#8198AA',
       },
-      // ...
+      // (もし、ここに、backgroundImage などの設定があれば、それは残しておいてください)
     },
   },
   plugins: [
-    require('@tailwindcss/typography')
+    require('@tailwindcss/typography'), // proseクラスを機能させるために必要です
   ],
-};
+}
