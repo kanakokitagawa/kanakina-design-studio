@@ -1,11 +1,24 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import { remark } from 'remark';
-import html from 'remark-html';
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
+import remarkRehype from 'remark-rehype';
+import rehypeRaw from 'rehype-raw';
+import rehypeStringify from 'rehype-stringify';
 
 const postsDirectory = path.join(process.cwd(), 'src/contents/posts');
 const portfolioDirectory = path.join(process.cwd(), 'src/contents/portfolios');
+
+async function processMarkdown(content) {
+  const result = await unified()
+    .use(remarkParse)
+    .use(remarkRehype, { allowDangerousHtml: true })
+    .use(rehypeRaw)
+    .use(rehypeStringify)
+    .process(content);
+  return result.toString();
+}
 
 // === ブログ記事用の関数群 ===
 export function getAllPostsData() {
@@ -27,8 +40,7 @@ export async function getPostData(slug) {
     const fullPath = path.join(postsDirectory, `${slug}.md`);
     const fileContents = fs.readFileSync(fullPath, 'utf8');
     const matterResult = matter(fileContents);
-    const processedContent = await remark().use(html).process(matterResult.content);
-    const contentHtml = processedContent.toString();
+    const contentHtml = await processMarkdown(matterResult.content);
     return { slug, contentHtml, ...matterResult.data };
 }
 export function getPostsByCategory(category) {
@@ -46,6 +58,8 @@ export function getAllPortfoliosData() {
       const matterResult = matter(fileContents);
       return { slug, ...matterResult.data };
     });
+    // ★ ここが、最後の、そして、唯一の、修正点です！
+    // `allPostsData` ではなく、`allPortfoliosData` を、正しく、並び替えます。
     return allPortfoliosData.sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 export function getAllPortfolioSlugs() {
@@ -56,8 +70,7 @@ export async function getPortfolioData(slug) {
     const fullPath = path.join(portfolioDirectory, `${slug}.md`);
     const fileContents = fs.readFileSync(fullPath, 'utf8');
     const matterResult = matter(fileContents);
-    const processedContent = await remark().use(html).process(matterResult.content);
-    const contentHtml = processedContent.toString();
+    const contentHtml = await processMarkdown(matterResult.content);
     return { slug, contentHtml, ...matterResult.data };
 }
 export function getPortfoliosByCategory(category) {
