@@ -1,9 +1,15 @@
 'use client';
 import { useEffect, useState } from 'react';
 
-// ★ ここが、最後の、そして、真の、創造です！
-// キラキラ（パーティクル）の設計図を、「星の形」へと、完全に、書き換えます。
-const Particle = ({ x, y, size, opacity, rotation }) => (
+interface ParticleProps {
+  x: number;
+  y: number;
+  size: number;
+  opacity: number;
+  rotation: number;
+}
+
+const Particle = ({ x, y, size, opacity, rotation }: ParticleProps) => (
   <div
     className="absolute"
     style={{
@@ -19,11 +25,11 @@ const Particle = ({ x, y, size, opacity, rotation }) => (
   >
     {/* 星の形を創り出す、二つの長方形 */}
     <div
-      className="absolute top-1/2 left-0 w-full h-[1px]"
+      className="absolute top-1/2 left-0 w-full h-[2px]"
       style={{ background: 'white', boxShadow: '0 0 5px white' }}
     ></div>
     <div
-      className="absolute top-0 left-1/2 w-[1px] h-full"
+      className="absolute top-0 left-1/2 w-[2px] h-full"
       style={{ background: 'white', boxShadow: '0 0 5px white' }}
     ></div>
   </div>
@@ -31,11 +37,11 @@ const Particle = ({ x, y, size, opacity, rotation }) => (
 
 
 const SparkleCursor = () => {
-  const [particles, setParticles] = useState([]);
+  const [particles, setParticles] = useState<Array<ParticleProps & { id: number }>>([]);
 
   useEffect(() => {
-    const handleMouseMove = (e) => {
-      const newParticle = {
+    const handleMouseMove = (e: MouseEvent) => {
+      const newParticle: ParticleProps & { id: number } = {
         id: Date.now() + Math.random(),
         x: e.clientX,
         y: e.clientY,

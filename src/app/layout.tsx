@@ -15,7 +15,7 @@ export const metadata = {
   description: "Design & Branding",
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja" className={mPlusRounded1c.variable}>
       {/* ★ ここが、変更点です！

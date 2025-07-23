@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import SparkleCursor from './SparkleCursor'; // 我々の魔法使い
 
-const ClientComponentWrapper = ({ children }) => {
+const ClientComponentWrapper = ({ children }: { children: React.ReactNode }) => {
   const [isClient, setIsClient] = useState(false);
 
   // このコンポーネントが、ブラウザの世界に完全に降り立った後で、初めて実行される
