@@ -15,15 +15,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (slugParts.length === 1) {
     const postData = await getPostData(slugParts[0]);
     return { title: `${postData.title} | Kanakina Design Studio` };
+  }import Image from 'next/image';
+import Link from 'next/link';
+import { getAllPostsData, getPostData, getPostsByCategory, Post } from '@/lib/posts';
+import type { Metadata } from 'next';
+
+//【最終修正】 type Props を使わず、引数に直接、厳密な型を定義します
+export async function generateMetadata({ params }: { params: { slug: string[] } }): Promise<Metadata> {
+  const slugParts = params.slug || [];
+  if (slugParts.length === 1) {
+    const postData = await getPostData(slugParts[0]);
+    return { title: `${postData.title} | Kanakina Design Studio` };
   }
   return { title: 'Blog | Kanakina Design Studio' };
 }
 
-// ページ本体のコンポーネントです
-export default async function BlogPage({ params }: Props) {
+//【最終修正】 こちらも同様に、引数に直接、厳密な型を定義します
+export default async function BlogPage({ params }: { params: { slug: string[] } }) {
   const slugParts = params.slug || [];
 
-  // ■■■ Blogの一覧ページの場合 ■■■
   if (slugParts.length === 0) {
     const allPosts: Omit<Post, 'contentHtml'>[] = getAllPostsData();
     return (
@@ -48,7 +58,6 @@ export default async function BlogPage({ params }: Props) {
     );
   }
 
-  // ■■■ Blogのカテゴリー別ページの場合 ■■■
   if (slugParts.length === 2 && slugParts[0] === 'category') {
     const categoryName = decodeURIComponent(slugParts[1]);
     const posts: Omit<Post, 'contentHtml'>[] = getPostsByCategory(categoryName);
@@ -74,7 +83,6 @@ export default async function BlogPage({ params }: Props) {
     );
   }
 
-  // ■■■ Blogの詳細ページの場合 ■■■
   if (slugParts.length === 1) {
     const postData: Post = await getPostData(slugParts[0]);
     return (
